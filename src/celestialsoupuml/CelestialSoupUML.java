@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package testswing;
+package celestialsoupuml;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -25,7 +25,7 @@ import javax.swing.JPanel;
  *
  * @author bwjablon
  */
-public class TestSwing  {
+public class CelestialSoupUML  {
 
     enum SelectedTool
     {
@@ -34,7 +34,7 @@ public class TestSwing  {
     }
     static SelectedTool selectedTool;
     private static List<Line> lines = new ArrayList();
-    
+    static JPanel p = new JPanel();
     private static List<Boxes> boxes = new ArrayList();
     /**
      * @param args the command line arguments
@@ -44,12 +44,28 @@ public class TestSwing  {
         
         selectedTool = SelectedTool.LINE;
         JFrame window = new JFrame("Untitled");
+        window.addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override
+        public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                    System.exit(0); 
+            }
+        });
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("File");
+        
         menuBar.add(menu);
+        JMenuItem newItem = new JMenuItem("New");
         JMenuItem lineItem = new JMenuItem("Line");
         JMenuItem boxItem = new JMenuItem("Box");
         JMenuItem quitItem = new JMenuItem("Quit");
+        newItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boxes.clear();
+                lines.clear();
+                p.repaint();
+            }
+        });
         lineItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -71,6 +87,7 @@ public class TestSwing  {
             }
         });
         
+        menu.add(newItem);
         menu.add(lineItem);
         menu.add(boxItem);
         menu.add(quitItem);
@@ -80,7 +97,7 @@ public class TestSwing  {
         int height = (int)(screenSize.getHeight() / 2);
         window.setSize(width, height);
         window.setLocationRelativeTo(null);
-        JPanel p = new JPanel() {
+        p = new JPanel() {
         Point pointStart = null;
         Point pointEnd   = null;
         boolean lineFinished = false;
@@ -122,53 +139,45 @@ public class TestSwing  {
                 }
             });
         }
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            
-            if(lines.size() > 0)
-            {
-                for(int i = 0; i < lines.size(); i++)
-                {
-                    g.drawLine(lines.get(i).pointStartX, lines.get(i).pointStartY, lines.get(i).pointEndX, lines.get(i).pointEndY);
-                }
-            }
-            
-            if(boxes.size() > 0)
-            {
-                for(int i = 0; i < boxes.size(); i++)
-                {
-                    g.drawRect(boxes.get(i).x, boxes.get(i).y, boxes.get(i).width, boxes.get(i).height);  
-                }
-            }
-            if (pointStart != null) 
-            {
-                if(selectedTool == SelectedTool.LINE)
-                    g.drawLine(pointStart.x, pointStart.y, pointEnd.x, pointEnd.y);
+        public void paintComponent(Graphics g) 
+        {
+                super.paintComponent(g);
+
                 
-                if(selectedTool == SelectedTool.RECTANGLE)
+                if(lines.size() > 0)
                 {
-                    int x = Math.min(pointStart.x, pointEnd.x);
-                    int y = Math.min(pointStart.y,pointEnd.y);
-                    int width = Math.max(pointStart.x - pointEnd.x, pointEnd.x - pointStart.x);
-                    int height = Math.max(pointStart.y - pointEnd.y, pointEnd.y - pointStart.y);
-                    g.drawRect(x, y, width, height);
+                    for(int i = 0; i < lines.size(); i++)
+                    {
+                        g.drawLine(lines.get(i).pointStartX, lines.get(i).pointStartY, lines.get(i).pointEndX, lines.get(i).pointEndY);
+                    }
                 }
-            }
-            
-            
-             
+
+                if(boxes.size() > 0)
+                {
+                    for(int i = 0; i < boxes.size(); i++)
+                    {
+                        g.drawRect(boxes.get(i).x, boxes.get(i).y, boxes.get(i).width, boxes.get(i).height);  
+                    }
+                }
+                if (pointStart != null) 
+                {
+                    if(selectedTool == SelectedTool.LINE)
+                        g.drawLine(pointStart.x, pointStart.y, pointEnd.x, pointEnd.y);
+
+                    if(selectedTool == SelectedTool.RECTANGLE)
+                    {
+                        int x = Math.min(pointStart.x, pointEnd.x);
+                        int y = Math.min(pointStart.y,pointEnd.y);
+                        int width = Math.max(pointStart.x - pointEnd.x, pointEnd.x - pointStart.x);
+                        int height = Math.max(pointStart.y - pointEnd.y, pointEnd.y - pointStart.y);
+                        g.drawRect(x, y, width, height);
+                    }
+                }
             }
         };
         window.add(p);
         window.show();
-    }
-    
-    
-
-    
- 
- 
-    
+    } 
 }
 
 
