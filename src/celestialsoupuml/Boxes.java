@@ -5,11 +5,16 @@
  */
 package celestialsoupuml;
 
+import java.awt.Graphics;
+import javax.swing.JPanel;
+
+
+
 /**
  *
  * @author Brandan
  */
-public class Boxes {
+public class Boxes extends JPanel {
     
     public int x;
     public int y;
@@ -22,5 +27,14 @@ public class Boxes {
         this.y = y;
         this.width = width;
         this.height = height;
+    }
+    
+     class RectArea extends JPanel {
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+           
+             g.drawRect(x, y, width, height);  
+            
+        }
     }
 }
