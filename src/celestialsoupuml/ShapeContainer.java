@@ -9,6 +9,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import javax.swing.JLabel;
 
 /**
  *
@@ -26,6 +27,8 @@ public class ShapeContainer extends javax.swing.JPanel{
     private int startY;
     private int endX;
     private int endY;
+    private JLabel label;
+    
     
     
     public ShapeContainer(ShapeEnum objectType){
@@ -42,27 +45,44 @@ public class ShapeContainer extends javax.swing.JPanel{
         this.box = new Boxes(x,y,width,height);
         this.width = width;
         this.height = height;
+        this.box.text = "";
+        label = new JLabel();
+        label.setText(this.box.text);
+        label.setLocation(10, 10);
+        label.setSize(100,100);
+        this.add(label);
+        
         //this.setBackground(Color.green);
         repaint();
+        
+        
     }
     
     public void drawLine(int startX, int startY, int endX, int endY){
         
         this.width = Math.abs(endX-startX);
+        
+        if(this.width<10){
+           // this.width = 10;
+        }
+        
         this.height = Math.abs(endY-startY);
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
-        this.setSize(500,500);
+        this.setSize(width,height);
         this.setLocation(startX,startY);
-
+        //this.setLocation(50,50);
         this.setBackground(Color.green);
         
         System.out.println("X: " + startX);
         System.out.println("Y: " + startY);
         System.out.println("Width: " + this.width);
         System.out.println("Height: " + this.height);
+        
+ 
+        
         
        // repaint();
     }
@@ -93,6 +113,17 @@ public class ShapeContainer extends javax.swing.JPanel{
     public void setIsSelected(boolean isSelected){
         this.isSelected = isSelected;
         repaint();
+    }
+    
+    public void setClassText(String newText){
+        this.remove(label);
+        this.box.text = newText;
+        this.label.setText(this.box.text);
+        this.add(label);
+    }
+    
+    public String getClassText(){
+        return box.text;
     }
     
 }

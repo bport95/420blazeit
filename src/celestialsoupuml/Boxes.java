@@ -20,6 +20,7 @@ public class Boxes extends JPanel {
     public int y;
     public int width;
     public int height;
+    public String text;
     
     Boxes(int x, int y, int width, int height)
     {
