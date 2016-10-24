@@ -7,16 +7,15 @@ package celestialsoupuml;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -24,8 +23,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -51,7 +48,6 @@ public class CelestialSoupUML {
     private static List<Line> lines = new ArrayList();
     static JPanel p = new JPanel();
     static JPanel sideMenu = new JPanel();
-    private static List<Boxes> boxes = new ArrayList();
     private static ShapeContainer selectedContainer;
     private static JMenuBar menuBar;
     private static boolean isPressingMouse;
@@ -74,20 +70,16 @@ public class CelestialSoupUML {
 
         menuBar = new JMenuBar();
         JMenu menu = new JMenu("File");
-        JMenu editMenu = new JMenu("Edit");
 
         menuBar.add(menu);
-        menuBar.add(editMenu);
         JMenuItem newItem = new JMenuItem("New");
         JMenuItem quitItem = new JMenuItem("Quit");
-
-        JMenuItem deleteItem = new JMenuItem("Delete");
 
         newItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boxes.clear();
                 lines.clear();
+                p.removeAll();
                 p.repaint();
             }
         });
@@ -99,21 +91,10 @@ public class CelestialSoupUML {
             }
         });
 
-        deleteItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (selectedContainer != null) {
-                    p.remove(selectedContainer);
-                    p.repaint();
-                    selectedContainer = null;
-                } else {
-                    System.out.println("No selected container");
-                }
-            }
-        });
-
         JToolBar toolbar = new JToolBar(JToolBar.VERTICAL);
         toolbar.setBackground(Color.gray);
+        toolbar.setFloatable(false);
+        
         JButton selectButton = new JButton();
         selectButton.setText("Select");
 
@@ -122,6 +103,12 @@ public class CelestialSoupUML {
 
         JButton boxButton = new JButton();
         boxButton.setText("Box");
+        
+        JButton textButton = new JButton();
+        textButton.setText("Text");
+        
+        JButton deleteButton = new JButton();
+        deleteButton.setText("Delete");
 
         boxButton.addActionListener(new ActionListener() {
             @Override
@@ -146,17 +133,40 @@ public class CelestialSoupUML {
                 window.setTitle("UML - Line");
             }
         });
+        
+        textButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(selectedContainer != null){
+                    editClassText();
+                }
+            }
+        });
+        
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(selectedContainer != null){
+                    p.remove(selectedContainer);
+                    p.repaint();
+                    selectedContainer = null;
+                }
+            }
+        });
 
         toolbar.add(selectButton);
         toolbar.addSeparator();
         toolbar.add(lineButton);
         toolbar.addSeparator();
         toolbar.add(boxButton);
+        toolbar.addSeparator();
+        toolbar.add(textButton);
+        toolbar.addSeparator();
+        toolbar.add(deleteButton);
         window.add(toolbar, BorderLayout.WEST);
 
         menu.add(newItem);
         menu.add(quitItem);
-        editMenu.add(deleteItem);
         window.setJMenuBar(menuBar);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) (screenSize.getWidth() / 2);
@@ -188,22 +198,14 @@ public class CelestialSoupUML {
                             Line newLine = new Line(pointStart.x, pointStart.y, pointEnd.x, pointEnd.y);
                             //lines.add(newLine);
 
-                            
-                            ShapeContainer container = new ShapeContainer(ShapeEnum.LINE);
-                            
-                            if(pointStart.y>pointEnd.y){
-                              
-                                container.drawLine(pointEnd.x, pointEnd.y, pointStart.x, pointStart.y);
-                            }else{
-                                container.drawLine(pointStart.x, pointStart.y, pointEnd.x, pointEnd.y);
-                            }
-                            
-                            
-                            
                             if (selectedContainer != null) {
                                 selectedContainer.setIsSelected(false);
                                 selectedContainer = null;
                             }
+                            
+                            ShapeContainer container = new ShapeContainer(ShapeEnum.LINE);
+                            container.drawLine(pointStart.x, pointStart.y, pointEnd.x, pointEnd.y);
+                            
                             selectedContainer = container;
                             selectedContainer.setIsSelected(true);
                             
@@ -211,38 +213,17 @@ public class CelestialSoupUML {
                                 @Override
                                 public void mouseReleased(MouseEvent e) {
                                     isPressingMouse = false;
+                                    
                                     System.out.println("released");
                                 }
 
                                 @Override
                                 public void mousePressed(MouseEvent e) {
                                     if (selectedTool == SelectedTool.SELECT) {
-                                        if (selectedContainer != null) {
-                                            selectedContainer = (ShapeContainer) e.getSource();
-
-                                            if (e.getClickCount() == 2) {
-                                                
-                                                JTextArea field1 = new JTextArea(20,50);
-                                                field1.setText(selectedContainer.getClassText());
-                                                
-                                                JPanel panel = new JPanel(new GridLayout(0, 1));
-                                                panel.add(field1);
-                                                int result = JOptionPane.showConfirmDialog(null, panel, "Test",
-                                                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                                                
-                                                
-                                                
-                                                if (result == JOptionPane.OK_OPTION) {
-                                                    System.out.println("Ok Result, Field 1 Text: " + field1.getText());
-                                                   
-                                                } else {
-                                                    System.out.println("Cancelled");
-                                                   
-                                                }
-
-                                            }
+                                        if(selectedContainer != null){
+                                            selectedContainer.setIsSelected(false);
                                         }
-
+                                        
                                         selectedContainer = (ShapeContainer) e.getSource();
                                         selectedContainer.setIsSelected(true);
                                         isPressingMouse = true;
@@ -282,6 +263,7 @@ public class CelestialSoupUML {
                             
                             
                             repaint();
+                           
                             p.add(container);
                             pointStart = null;
                              
@@ -293,7 +275,6 @@ public class CelestialSoupUML {
                             int y = Math.min(pointStart.y, e.getPoint().y);
                             int width = Math.max(pointStart.x - e.getPoint().x, e.getPoint().x - pointStart.x);
                             int height = Math.max(pointStart.y - e.getPoint().y, e.getPoint().y - pointStart.y);
-                            boxes.add(new Boxes(x, y, width, height));
 
                             pointStart = null;
                             repaint();
@@ -318,27 +299,8 @@ public class CelestialSoupUML {
                                 public void mousePressed(MouseEvent e) {
                                     if (selectedTool == SelectedTool.SELECT) {
                                         if (selectedContainer != null) {
-                                            //selectedContainer.setIsSelected(false);
-                                           // selectedContainer = null;
-                                           
-                                           selectedContainer = (ShapeContainer) e.getSource();
-
-                                            if (e.getClickCount() == 2) {
-                                                
-                                                JTextArea field1 = new JTextArea(20,50);
-                                                
-                                                JPanel panel = new JPanel(new GridLayout(0, 1));
-                                                panel.add(field1);
-                                                int result = JOptionPane.showConfirmDialog(null, panel, "Test",
-                                                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                                                if (result == JOptionPane.OK_OPTION) {
-                                                   selectedContainer.setClassText(field1.getText());
-                                                   System.out.println("Entered Text: " + field1.getText());
-                                                } else {
-                                                    System.out.println("Cancelled_");
-                                                }
-
-                                            }
+                                            selectedContainer.setIsSelected(false);
+                                            selectedContainer = null;
                                         }
 
                                         selectedContainer = (ShapeContainer) e.getSource();
@@ -426,7 +388,61 @@ public class CelestialSoupUML {
         };
 
         window.add(p);
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
         window.show();
+        
+        window.addComponentListener(new ComponentListener(){
+            @Override
+            public void componentResized(ComponentEvent e) {
+                //Get size of frame and do cool stuff with it   
+                System.out.println("Comp Resized");
+                if(selectedContainer != null){
+                    selectedContainer.invalidate();
+                }
+            }
 
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                
+                System.out.println("Comp Moved");
+            }
+
+            @Override
+            public void componentShown(ComponentEvent e) {
+                System.out.println("Comp Shown");
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                System.out.println("Comp Hidden");
+            }
+        });
+
+
+    }
+    
+    public static void editClassText(){
+        JTextArea field1 = new JTextArea(20,50);
+        field1.setText(selectedContainer.getClassText());
+        field1.setWrapStyleWord(true);
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(field1);
+        int result = JOptionPane.showConfirmDialog(null, panel, "Text",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            selectedContainer.setClassText(field1.getText());
+            System.out.println("Entered Text: " + selectedContainer.getClassText());
+            refreshContainer();
+        } else {
+            System.out.println("Cancelled_");
+        }
+    }
+    
+    public static void refreshContainer(){
+        ShapeContainer tempContainer = selectedContainer;
+        selectedContainer.setIsSelected(false);
+        selectedContainer = null;
+        selectedContainer = tempContainer;
+        selectedContainer.setIsSelected(true);
     }
 }

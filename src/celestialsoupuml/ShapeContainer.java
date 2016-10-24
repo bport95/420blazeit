@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -27,6 +28,7 @@ public class ShapeContainer extends javax.swing.JPanel{
     private int startY;
     private int endX;
     private int endY;
+    private boolean isMoving;
     private JLabel label;
     
     
@@ -49,46 +51,46 @@ public class ShapeContainer extends javax.swing.JPanel{
         label = new JLabel();
         label.setText(this.box.text);
         label.setLocation(10, 10);
-        label.setSize(100,100);
+        label.setSize(width,height);
+        label.setVerticalAlignment(SwingConstants.TOP);
         this.add(label);
         
-        //this.setBackground(Color.green);
+        this.setBackground(Color.white);
         repaint();
         
         
     }
     
     public void drawLine(int startX, int startY, int endX, int endY){
-        
+
         this.width = Math.abs(endX-startX);
-        
-        if(this.width<10){
-           // this.width = 10;
-        }
-        
         this.height = Math.abs(endY-startY);
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
         this.setSize(width,height);
-        this.setLocation(startX,startY);
-        //this.setLocation(50,50);
-        this.setBackground(Color.green);
+        this.setLocation(startX, startY);
         
-        System.out.println("X: " + startX);
-        System.out.println("Y: " + startY);
-        System.out.println("Width: " + this.width);
-        System.out.println("Height: " + this.height);
+        if (startX < endX && startY > endY) {
+            this.setLocation(startX, endY);
+            System.out.println("s2");
+        } else if (startX > endX && startY > endY) {
+            this.setLocation(endX, endY);
+            System.out.println("s3");
+        } else if (startX > endX && startY < endY) {
+            this.setLocation(endX, this.getLocation().y);
+            System.out.println("s4");
+        }
         
- 
+        this.setOpaque(false);
+        invalidate();
         
-        
-       // repaint();
     }
     
     public void moveBox(int newX, int newY){
-        this.setLocation(this.getLocation().x + newX,this.getLocation().y + newY);
+        isMoving = true;
+        this.setLocation(this.getLocation().x + newX,this.getLocation().y + newY); 
     }
     
     public void paintComponent(Graphics g) 
@@ -106,7 +108,40 @@ public class ShapeContainer extends javax.swing.JPanel{
       if(shapeType == ShapeEnum.BOX){
         g2.drawRect(0, 0, width, height);
       }else{
-        g.drawLine(0, 0, this.endX, this.endY);
+
+        if(!isMoving){
+            if (startX < endX && startY < endY) {
+                System.out.println("1");
+                startX = 0;
+                startY = 0;
+                endX = (int) ( this.getSize().getWidth());
+                endY = (int) ( this.getSize().height);
+            } else if (startX < endX && startY > endY) {
+                System.out.println("2");
+                startX = 0;
+                startY = (int) this.getSize().getHeight();
+                endX = (int) ( this.getSize().getWidth());
+                endY = 0;
+            } else if (startX > endX && startY > endY) {
+                System.out.println("3");
+                endX = 0;
+                endY = 0;
+                startX = (int) ( this.getSize().getWidth());
+                startY = (int) ( this.getSize().height);
+            } else if (startX > endX && startY < endY) {
+                System.out.println("4");
+                endX = 0;
+                endY = (int) this.getSize().getHeight();
+                startX = (int) (this.getSize().getWidth());
+                startY = 0;
+            } else {
+                System.out.println("Unknown Type");
+            }
+        }else{
+            isMoving = false;
+        }    
+               
+        g.drawLine(startX, startY, endX, endY);
       }
     }
     
@@ -118,7 +153,11 @@ public class ShapeContainer extends javax.swing.JPanel{
     public void setClassText(String newText){
         this.remove(label);
         this.box.text = newText;
-        this.label.setText(this.box.text);
+        //this.label.setText(this.box.text);
+        label.setText("<html>" + this.box.text.replaceAll("<","&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br/>") + "</html>");
+        System.out.println("Text: " + label.getText());
+        System.out.println("Line Index: " + label.getText().indexOf("--"));
+        label.setText(label.getText().replace("--", "------------------------------------------------------------------------------"));
         this.add(label);
     }
     
