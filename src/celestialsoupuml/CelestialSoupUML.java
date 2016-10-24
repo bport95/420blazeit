@@ -101,7 +101,7 @@ public class CelestialSoupUML {
 
         JToolBar toolbar = new JToolBar(JToolBar.VERTICAL);
         toolbar.setBackground(Color.gray);
-        toolbar.setFloatable(false);
+        //toolbar.setFloatable(false);
         
         JButton selectButton = new JButton();
         selectButton.setText("Select");
@@ -271,6 +271,7 @@ public class CelestialSoupUML {
                             
                             
                             repaint();
+                           
                             p.add(container);
                             pointStart = null;
                              

@@ -55,7 +55,7 @@ public class ShapeContainer extends javax.swing.JPanel{
         label.setVerticalAlignment(SwingConstants.TOP);
         this.add(label);
         
-        //this.setBackground(Color.green);
+        this.setBackground(Color.white);
         repaint();
         
         
@@ -71,7 +71,7 @@ public class ShapeContainer extends javax.swing.JPanel{
         this.endY = endY;
         this.setSize(width,height);
         this.setLocation(startX,startY);
-        //this.setBackground(Color.green);
+        this.setOpaque(false);
         invalidate();
         
     }
