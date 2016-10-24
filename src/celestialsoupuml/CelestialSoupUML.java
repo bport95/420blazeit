@@ -7,13 +7,10 @@ package celestialsoupuml;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,8 +23,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -53,7 +48,6 @@ public class CelestialSoupUML {
     private static List<Line> lines = new ArrayList();
     static JPanel p = new JPanel();
     static JPanel sideMenu = new JPanel();
-    private static List<Boxes> boxes = new ArrayList();
     private static ShapeContainer selectedContainer;
     private static JMenuBar menuBar;
     private static boolean isPressingMouse;
@@ -84,7 +78,6 @@ public class CelestialSoupUML {
         newItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boxes.clear();
                 lines.clear();
                 p.removeAll();
                 p.repaint();
@@ -98,10 +91,9 @@ public class CelestialSoupUML {
             }
         });
 
-
         JToolBar toolbar = new JToolBar(JToolBar.VERTICAL);
         toolbar.setBackground(Color.gray);
-        //toolbar.setFloatable(false);
+        toolbar.setFloatable(false);
         
         JButton selectButton = new JButton();
         selectButton.setText("Select");
@@ -283,7 +275,6 @@ public class CelestialSoupUML {
                             int y = Math.min(pointStart.y, e.getPoint().y);
                             int width = Math.max(pointStart.x - e.getPoint().x, e.getPoint().x - pointStart.x);
                             int height = Math.max(pointStart.y - e.getPoint().y, e.getPoint().y - pointStart.y);
-                            boxes.add(new Boxes(x, y, width, height));
 
                             pointStart = null;
                             repaint();

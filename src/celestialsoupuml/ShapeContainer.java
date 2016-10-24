@@ -70,7 +70,19 @@ public class ShapeContainer extends javax.swing.JPanel{
         this.endX = endX;
         this.endY = endY;
         this.setSize(width,height);
-        this.setLocation(startX,startY);
+        this.setLocation(startX, startY);
+        
+        if (startX < endX && startY > endY) {
+            this.setLocation(startX, endY);
+            System.out.println("s2");
+        } else if (startX > endX && startY > endY) {
+            this.setLocation(endX, endY);
+            System.out.println("s3");
+        } else if (startX > endX && startY < endY) {
+            this.setLocation(endX, this.getLocation().y);
+            System.out.println("s4");
+        }
+        
         this.setOpaque(false);
         invalidate();
         
@@ -96,29 +108,32 @@ public class ShapeContainer extends javax.swing.JPanel{
       if(shapeType == ShapeEnum.BOX){
         g2.drawRect(0, 0, width, height);
       }else{
-        System.out.println("Draw Line");
 
         if(!isMoving){
             if (startX < endX && startY < endY) {
+                System.out.println("1");
                 startX = 0;
                 startY = 0;
-                endX = (int) (this.getLocation().getX() + this.getSize().getWidth());
-                endY = (int) (this.getLocation().getY() + this.getSize().height);
+                endX = (int) ( this.getSize().getWidth());
+                endY = (int) ( this.getSize().height);
             } else if (startX < endX && startY > endY) {
+                System.out.println("2");
                 startX = 0;
                 startY = (int) this.getSize().getHeight();
-                endX = (int) (this.getLocation().getX() + this.getSize().getWidth());
-                endY = (int) (this.getSize().height - this.getLocation().getY());
+                endX = (int) ( this.getSize().getWidth());
+                endY = 0;
             } else if (startX > endX && startY > endY) {
+                System.out.println("3");
                 endX = 0;
                 endY = 0;
-                startX = (int) (this.getLocation().getX() + this.getSize().getWidth());
-                startY = (int) (this.getLocation().getY() + this.getSize().height);
+                startX = (int) ( this.getSize().getWidth());
+                startY = (int) ( this.getSize().height);
             } else if (startX > endX && startY < endY) {
+                System.out.println("4");
                 endX = 0;
                 endY = (int) this.getSize().getHeight();
-                startX = (int) (this.getLocation().getX() + this.getSize().getWidth());
-                startY = (int) (this.getSize().height - this.getLocation().getY());
+                startX = (int) (this.getSize().getWidth());
+                startY = 0;
             } else {
                 System.out.println("Unknown Type");
             }
