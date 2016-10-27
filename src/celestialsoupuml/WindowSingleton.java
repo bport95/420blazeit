@@ -44,7 +44,7 @@ public class WindowSingleton {
     private static boolean isPressingMouse;
     private static MouseListener containerListener;
     private static MouseMotionListener containerMotionListener;
-    private static ArrayList<ShapeContainer> shapeContainers;
+    public static ArrayList<ShapeContainer> shapeContainers;
 
     enum SelectedTool {
         LINE,
@@ -304,7 +304,6 @@ public class WindowSingleton {
                              editClassText();
                         }
                     }
-                    
                 }
             }
 
@@ -370,7 +369,7 @@ public class WindowSingleton {
         return WindowSingletonHolder.INSTANCE;
     }
 
-    private static class WindowSingletonHolder {
+    public static class WindowSingletonHolder {
         private static final WindowSingleton INSTANCE = new WindowSingleton();
     }
 }
