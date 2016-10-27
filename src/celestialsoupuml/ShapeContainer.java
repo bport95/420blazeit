@@ -18,7 +18,7 @@ import javax.swing.SwingConstants;
 
 public class ShapeContainer extends javax.swing.JPanel{
     
-    private ShapeEnum shapeType;
+    public ShapeEnum shapeType;
     private int width;
     private int height;
     private boolean isSelected;
@@ -74,7 +74,6 @@ public class ShapeContainer extends javax.swing.JPanel{
         }
         
         if(startY == endY){
-            System.out.println("start y == end y");
             this.setSize(width, 10);
         }
         
@@ -129,44 +128,35 @@ public class ShapeContainer extends javax.swing.JPanel{
       }else{
         if(!isMoving){
             if (startX < endX && startY < endY) {
-                System.out.println("1");
                 startX = 0;
                 startY = 0;
                 endX = (int) ( this.getSize().getWidth());
                 endY = (int) ( this.getSize().height);
             } else if (startX < endX && startY > endY) {
-                System.out.println("2");
                 startX = 0;
                 startY = (int) this.getSize().getHeight();
                 endX = (int) ( this.getSize().getWidth());
                 endY = 0;
             } else if (startX > endX && startY > endY) {
-                System.out.println("3");
                 endX = 0;
                 endY = 0;
                 startX = (int) ( this.getSize().getWidth());
                 startY = (int) ( this.getSize().height);
             } else if (startX > endX && startY < endY) {
-                System.out.println("4");
                 endX = 0;
                 endY = (int) this.getSize().getHeight();
                 startX = (int) (this.getSize().getWidth());
                 startY = 0;
             }else if (startX == endX) {
-                System.out.println("5");
                 startX = (int) (this.getSize().getWidth()/2);
                 startY = 0;
                 endX = (int) (this.getSize().getWidth()/2);
                 endY = (int) this.getSize().getHeight();
             }else if (startY == endY) {
-                System.out.println("6");
                 startX = 0;
                 startY = (int) this.getSize().getHeight()/2;
                 endX = (int) (this.getSize().getWidth());
                 endY = (int) this.getSize().getHeight()/2;
-            }
-            else {
-                System.out.println("Unknown Type");
             }
         }else{
             isMoving = false;
@@ -192,4 +182,5 @@ public class ShapeContainer extends javax.swing.JPanel{
     public String getClassText(){
         return this.classText;
     }
+    
 }

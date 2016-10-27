@@ -111,7 +111,7 @@ public class WindowSingleton {
         textButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (selectedContainer != null) {
+                if (selectedContainer != null && selectedContainer.shapeType == ShapeEnum.CLASSBOX) {
                     editClassText();
                 }
             }
@@ -286,8 +286,6 @@ public class WindowSingleton {
             @Override
             public void mouseReleased(MouseEvent e) {
                 isPressingMouse = false;
-
-                System.out.println("released");
             }
 
             @Override
@@ -319,10 +317,7 @@ public class WindowSingleton {
 
         containerMotionListener = new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
-                System.out.println("is pressing : " + isPressingMouse);
-                System.out.println("selected container : " + selectedContainer);
                 if (isPressingMouse == true) {
-                    System.out.println("Moved");
                     selectedContainer.moveBox(e.getX() - (selectedContainer.getWidth() / 2), e.getY() - (selectedContainer.getHeight() / 2));
                 }
             }
@@ -349,10 +344,7 @@ public class WindowSingleton {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             selectedContainer.setClassText(textArea.getText());
-            System.out.println("Entered Text: " + selectedContainer.getClassText());
             refreshContainer();
-        } else {
-            System.out.println("Cancelled");
         }
     }
 
