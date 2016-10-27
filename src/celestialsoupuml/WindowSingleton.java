@@ -299,6 +299,12 @@ public class WindowSingleton {
                     selectedContainer.setIsSelected(true);
                     isPressingMouse = true;
 
+                    if (e.getClickCount() == 2) {
+                        if (selectedContainer != null && selectedContainer.shapeType == ShapeEnum.CLASSBOX) {
+                             editClassText();
+                        }
+                    }
+                    
                 }
             }
 
