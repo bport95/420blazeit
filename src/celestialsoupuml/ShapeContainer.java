@@ -13,7 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 /**
- *
  * @author ben
  */
 
@@ -23,13 +22,13 @@ public class ShapeContainer extends javax.swing.JPanel{
     private int width;
     private int height;
     private boolean isSelected;
-    private Boxes box;
     private int startX;
     private int startY;
     private int endX;
     private int endY;
     private boolean isMoving;
     private JLabel label;
+    public String classText;
     
     
     
@@ -44,12 +43,10 @@ public class ShapeContainer extends javax.swing.JPanel{
         
         this.setSize(width,height);
         this.setLocation(x, y);
-        this.box = new Boxes(x,y,width,height);
         this.width = width;
         this.height = height;
-        this.box.text = "";
         label = new JLabel();
-        label.setText(this.box.text);
+        label.setText(this.classText);
         label.setLocation(10, 10);
         label.setSize(width,height);
         label.setVerticalAlignment(SwingConstants.TOP);
@@ -72,15 +69,35 @@ public class ShapeContainer extends javax.swing.JPanel{
         this.setSize(width,height);
         this.setLocation(startX, startY);
         
+        if(startX == endX){
+            this.setSize(width+10, height);
+        }
+        
+        if(startY == endY){
+            System.out.println("start y == end y");
+            this.setSize(width, 10);
+        }
+        
         if (startX < endX && startY > endY) {
             this.setLocation(startX, endY);
-            System.out.println("s2");
         } else if (startX > endX && startY > endY) {
             this.setLocation(endX, endY);
-            System.out.println("s3");
         } else if (startX > endX && startY < endY) {
             this.setLocation(endX, this.getLocation().y);
-            System.out.println("s4");
+        }
+        //vertical line
+        else if (startX == endX && startY != endY) {
+            this.setLocation(endX, startY);
+            if(endY<endX){
+              this.setLocation(endX, endY);  
+            }
+        }
+        //horizontal line
+        else if (startX != endX && startY == endY) {
+            this.setLocation(endX, this.getLocation().y);
+            if(endY<endX){
+              this.setLocation(startX, this.getLocation().y);  
+            }
         }
         
         this.setOpaque(false);
@@ -105,10 +122,11 @@ public class ShapeContainer extends javax.swing.JPanel{
           g2.setColor(Color.black);
       }
 
-      if(shapeType == ShapeEnum.BOX){
+      if(shapeType == ShapeEnum.CLASSBOX){
+          
         g2.drawRect(0, 0, width, height);
+        
       }else{
-
         if(!isMoving){
             if (startX < endX && startY < endY) {
                 System.out.println("1");
@@ -134,7 +152,20 @@ public class ShapeContainer extends javax.swing.JPanel{
                 endY = (int) this.getSize().getHeight();
                 startX = (int) (this.getSize().getWidth());
                 startY = 0;
-            } else {
+            }else if (startX == endX) {
+                System.out.println("5");
+                startX = (int) (this.getSize().getWidth()/2);
+                startY = 0;
+                endX = (int) (this.getSize().getWidth()/2);
+                endY = (int) this.getSize().getHeight();
+            }else if (startY == endY) {
+                System.out.println("6");
+                startX = 0;
+                startY = (int) this.getSize().getHeight()/2;
+                endX = (int) (this.getSize().getWidth());
+                endY = (int) this.getSize().getHeight()/2;
+            }
+            else {
                 System.out.println("Unknown Type");
             }
         }else{
@@ -152,17 +183,13 @@ public class ShapeContainer extends javax.swing.JPanel{
     
     public void setClassText(String newText){
         this.remove(label);
-        this.box.text = newText;
-        //this.label.setText(this.box.text);
-        label.setText("<html>" + this.box.text.replaceAll("<","&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br/>") + "</html>");
-        System.out.println("Text: " + label.getText());
-        System.out.println("Line Index: " + label.getText().indexOf("--"));
+        this.classText = newText;
+        label.setText("<html>" + this.classText.replaceAll("<","&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br/>") + "</html>");
         label.setText(label.getText().replace("--", "------------------------------------------------------------------------------"));
         this.add(label);
     }
     
     public String getClassText(){
-        return box.text;
+        return this.classText;
     }
-    
 }

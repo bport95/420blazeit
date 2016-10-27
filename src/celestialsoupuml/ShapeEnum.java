@@ -6,10 +6,10 @@
 package celestialsoupuml;
 
 /**
- *
  * @author ben
  */
+
 public enum ShapeEnum {
-    BOX,
-    LINE
+    CLASSBOX,
+    RELATIONSHIPLINE
 }
