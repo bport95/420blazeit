@@ -9,6 +9,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
@@ -16,16 +17,17 @@ import javax.swing.SwingConstants;
  * @author ben
  */
 
-public class ShapeContainer extends javax.swing.JPanel{
+public class ShapeContainer extends javax.swing.JPanel {
     
+    public RelationshipStatusEnum relationshipType;
     public ShapeEnum shapeType;
-    private int width;
-    private int height;
+    public int width;
+    public int height;
     private boolean isSelected;
-    private int startX;
-    private int startY;
-    private int endX;
-    private int endY;
+    public int startX;
+    public int startY;
+    public  int endX;
+    public int endY;
     private boolean isMoving;
     private JLabel label;
     public String classText;
@@ -33,11 +35,13 @@ public class ShapeContainer extends javax.swing.JPanel{
     
     
     public ShapeContainer(ShapeEnum objectType){
-        super();
+        //super();
         
         shapeType = objectType;
         
     }
+    
+    
     
     public void drawBox(int x, int y, int width, int height){
         
@@ -114,7 +118,14 @@ public class ShapeContainer extends javax.swing.JPanel{
       super.paintComponent(g);
       
       Graphics2D g2 = (Graphics2D) g;
-      g2.setStroke(new BasicStroke(2));
+      if(relationshipType == RelationshipStatusEnum.ASSOCIATION){
+        g2.setStroke(new BasicStroke(2));
+      }else if (relationshipType == RelationshipStatusEnum.GENERALIZATION){
+        Stroke dotted = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] {1,2}, 0);
+        g2.setStroke(dotted);
+      }else{
+        //logic for arrow line here...  
+      }
       if(isSelected){
           g2.setColor(Color.red);
       }else{
@@ -170,7 +181,10 @@ public class ShapeContainer extends javax.swing.JPanel{
         this.isSelected = isSelected;
         repaint();
     }
-    
+    public void setRelationshipType(RelationshipStatusEnum status) {
+        relationshipType = status;
+        repaint();
+    }
     public void setClassText(String newText){
         this.remove(label);
         this.classText = newText;
