@@ -14,6 +14,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -32,8 +34,10 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -49,6 +53,8 @@ import javax.swing.JToolBar;
 public class WindowSingleton {
 
     private static JFrame window;
+    JMenuBar menuBar = new JMenuBar();
+    JComboBox comboBox = new JComboBox();
     private static SelectedTool selectedTool;
     private static JPanel panel = new JPanel();
     private static JPanel sideMenu = new JPanel();
@@ -100,6 +106,8 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.RECTANGLE;
+                menuBar.getComponent(1).setVisible(false);
+                menuBar.getComponent(2).setVisible(false);
                 window.setTitle("UML - Box");
             }
         });
@@ -116,6 +124,8 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.LINE;
+                menuBar.getComponent(1).setVisible(true);
+                menuBar.getComponent(2).setVisible(true);
                 window.setTitle("UML - Line");
             }
         });
@@ -152,11 +162,52 @@ public class WindowSingleton {
         toolbar.add(deleteButton);
         window.add(toolbar, BorderLayout.WEST);
 
-        JMenuBar menuBar = new JMenuBar();
+        
 
         JMenu menu = new JMenu("File");
 
+        
+        
+        comboBox.addItem("Association");
+        comboBox.addItem("Directed Association");
+        comboBox.addItem("Generalization");
+        comboBox.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent ie){
+                if(ie.getStateChange() == ItemEvent.SELECTED){
+                    if((selectedContainer.shapeType == ShapeEnum.RELATIONSHIPLINE)
+                            && (comboBox.getSelectedItem().toString() == "Association")){
+                        for(ShapeContainer s : shapeContainers){
+                            if(s.getSelected() == true)
+                            {
+                                s.relationshipType = RelationshipStatusEnum.ASSOCIATION;
+                            }
+                        }
+                        System.out.println("Change to association");
+                    }
+                    else if( (selectedContainer.shapeType == ShapeEnum.RELATIONSHIPLINE)
+                            && (comboBox.getSelectedItem().toString() == "Generalization")){
+                        System.out.println("Change to generalization");
+                        for(ShapeContainer s : shapeContainers){
+                            if(s.getSelected() == true)
+                            {
+                                s.relationshipType = RelationshipStatusEnum.GENERALIZATION;
+                            }
+                        };
+                    }
+                        
+                }
+                
+            }
+        });
+        JLabel relationshipLabel = new JLabel("Line Relationship:");
         menuBar.add(menu);
+        menuBar.add(relationshipLabel);
+        menuBar.add(comboBox);
+        System.out.println(menuBar.getComponentIndex(comboBox));
+        menuBar.getComponent(1).setVisible(false);
+        menuBar.getComponent(2).setVisible(false);
+        
         JMenuItem newItem = new JMenuItem("New");
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem saveItem = new JMenuItem("Save");
@@ -265,9 +316,13 @@ public class WindowSingleton {
 
                             ShapeContainer container = new ShapeContainer(ShapeEnum.RELATIONSHIPLINE);
                             container.drawLine(pointStart.x, pointStart.y, pointEnd.x, pointEnd.y);
-
+                            if(comboBox.getSelectedItem().toString() == "Generalization"){
+                                container.setRelationshipType(RelationshipStatusEnum.GENERALIZATION);
+                            }
                             selectedContainer = container;
+                            
                             selectedContainer.setIsSelected(true);
+        
 
                             container.addMouseListener(containerListener);
                             container.addMouseMotionListener(containerMotionListener);

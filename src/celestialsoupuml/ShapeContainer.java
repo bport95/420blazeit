@@ -37,6 +37,7 @@ public class ShapeContainer extends javax.swing.JPanel {
     public ShapeContainer(ShapeEnum objectType){
         //super();
         
+        relationshipType = RelationshipStatusEnum.ASSOCIATION;
         shapeType = objectType;
         
     }
@@ -121,8 +122,13 @@ public class ShapeContainer extends javax.swing.JPanel {
       if(relationshipType == RelationshipStatusEnum.ASSOCIATION){
         g2.setStroke(new BasicStroke(2));
       }else if (relationshipType == RelationshipStatusEnum.GENERALIZATION){
-        Stroke dotted = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] {1,2}, 0);
-        g2.setStroke(dotted);
+        float[] dash1 = {10.0f};
+        BasicStroke dashed =
+        new BasicStroke(1.0f,
+                        BasicStroke.CAP_BUTT,
+                        BasicStroke.JOIN_MITER,
+                        10.0f, dash1, 0.0f);
+        g2.setStroke(dashed);
       }else{
         //logic for arrow line here...  
       }
@@ -195,6 +201,10 @@ public class ShapeContainer extends javax.swing.JPanel {
     
     public String getClassText(){
         return this.classText;
+    }
+    
+    public boolean getSelected(){
+        return this.isSelected;
     }
     
 }
