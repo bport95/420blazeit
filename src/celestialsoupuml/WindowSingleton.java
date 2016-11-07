@@ -19,8 +19,20 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -146,6 +158,9 @@ public class WindowSingleton {
 
         menuBar.add(menu);
         JMenuItem newItem = new JMenuItem("New");
+        JMenuItem openItem = new JMenuItem("Open");
+        JMenuItem saveItem = new JMenuItem("Save");
+        JMenuItem printItem = new JMenuItem("Print");
         JMenuItem quitItem = new JMenuItem("Quit");
 
         newItem.addActionListener(new ActionListener() {
@@ -156,6 +171,52 @@ public class WindowSingleton {
             }
         });
 
+        openItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser c = new JFileChooser();
+                 int rVal = c.showOpenDialog(window);
+                 if(rVal == JFileChooser.APPROVE_OPTION){
+                    try {
+                        LoadFromFile(c.getSelectedFile().toString());
+                    } catch (IOException ex) {
+                        Logger.getLogger(WindowSingleton.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(WindowSingleton.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                 }
+            }
+        });
+        
+        
+        
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               JFileChooser c = new JFileChooser();
+               int rVal = c.showSaveDialog(window);
+               if(rVal == JFileChooser.APPROVE_OPTION){
+                   try {
+                       SaveToFile(c.getSelectedFile().toString());
+                   } catch (IOException ex) {
+                       Logger.getLogger(WindowSingleton.class.getName()).log(Level.SEVERE, null, ex);
+                   }
+               }
+            }
+        });
+        
+        printItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               PrinterJob pj = PrinterJob.getPrinterJob();
+                if (pj.printDialog()) {
+                    try {pj.print();}
+                    catch (PrinterException exc) {
+                        System.out.println(exc);
+                     }
+                 }   
+            }
+        });
         quitItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -164,12 +225,11 @@ public class WindowSingleton {
         });
 
         menu.add(newItem);
+        menu.add(openItem);
+        menu.add(saveItem);
+        menu.add(printItem);
         menu.add(quitItem);
         window.setJMenuBar(menuBar);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) (screenSize.getWidth() / 2);
-        int height = (int) (screenSize.getHeight() / 2);
-        window.setSize(width, height);
         window.setLocationRelativeTo(null);
         window.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
@@ -363,6 +423,46 @@ public class WindowSingleton {
         selectedContainer = null;
         selectedContainer = tempContainer;
         selectedContainer.setIsSelected(true);
+    }
+    
+    private void LoadFromFile(String filePath) throws FileNotFoundException, IOException, ClassNotFoundException
+    {
+        System.out.println(filePath);
+        
+        FileInputStream fileInput = new FileInputStream(filePath);
+        ObjectInputStream objectInput = new ObjectInputStream(fileInput);
+        ArrayList<SaveObject> savedObjects = (ArrayList<SaveObject>)objectInput.readObject();
+        objectInput.close();
+        fileInput.close();
+        System.out.println(savedObjects.size());
+        for(SaveObject s : savedObjects){
+            ShapeContainer newS = new ShapeContainer(s.type);
+            newS.startX = s.startX;
+            newS.startY = s.startY;
+            newS.endX = s.endX;
+            newS.endY = s.endY;
+            newS.width = s.width;
+            newS.height = s.height;
+            System.out.println(newS.startX + " " + newS.startY + " " + newS.endX + " " + newS.endY + " " +
+                              newS.width + " " + newS.height + "\n");
+            shapeContainers.add(newS);
+        }
+        
+    }
+    
+    private void SaveToFile(String filePath) throws FileNotFoundException, IOException
+    {
+        System.out.println(filePath);
+        ArrayList<SaveObject> savedObjects = new ArrayList<>();
+        for(ShapeContainer s : shapeContainers){
+            savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.width, s.height, s.shapeType));
+        }
+        FileOutputStream fout = new FileOutputStream(filePath);
+        ObjectOutputStream oos = new ObjectOutputStream(fout);
+        oos.writeObject(savedObjects);
+        oos.close();
+        fout.close();
+        
     }
 
     public static WindowSingleton getInstance() {
