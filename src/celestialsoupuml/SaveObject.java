@@ -17,8 +17,10 @@ package celestialsoupuml;
 public class SaveObject implements java.io.Serializable{
     
     public ShapeEnum type;
+    public RelationshipStatusEnum relStat;
     public int startX, startY, endX, endY, width, height;
-    public SaveObject(int startX, int startY, int endX, int endY, int width, int height, ShapeEnum shapeType)
+    public String classText;
+    public SaveObject(int startX, int startY, int endX, int endY, int width, int height, ShapeEnum shapeType, RelationshipStatusEnum relationshipStatus,String classText)
     {
         if(shapeType == ShapeEnum.RELATIONSHIPLINE)
         {
@@ -27,6 +29,8 @@ public class SaveObject implements java.io.Serializable{
             this.endX = endX;
             this.endY = endY;
             this.type = shapeType;
+            this.relStat = relationshipStatus;
+            this.classText = null;
         }
         else
         {
@@ -35,6 +39,8 @@ public class SaveObject implements java.io.Serializable{
             this.width = width;
             this.height = height;
             this.type = shapeType;
+            this.relStat = null;
+            this.classText = classText;
         }
     }
 }
