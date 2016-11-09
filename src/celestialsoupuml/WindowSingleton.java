@@ -5,11 +5,15 @@
  */
 package celestialsoupuml;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -21,8 +25,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,6 +37,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -44,6 +50,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -223,7 +230,7 @@ public class WindowSingleton {
         JMenuItem newItem = new JMenuItem("New");
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem saveItem = new JMenuItem("Save");
-        JMenuItem printItem = new JMenuItem("Print");
+        JMenuItem exportItem = new JMenuItem("Export");
         JMenuItem quitItem = new JMenuItem("Quit");
 
         newItem.addActionListener(new ActionListener() {
@@ -241,6 +248,8 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser c = new JFileChooser();
+                c.setFileFilter(new FileNameExtensionFilter("Celestial Soup UML", ".csu"));
+                c.setAcceptAllFileFilterUsed(false);
                 int rVal = c.showOpenDialog(window);
                 if (rVal == JFileChooser.APPROVE_OPTION) {
                     try {
@@ -261,17 +270,29 @@ public class WindowSingleton {
             }
         });
 
-        printItem.addActionListener(new ActionListener() {
+        exportItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PrinterJob pj = PrinterJob.getPrinterJob();
-                if (pj.printDialog()) {
-                    try {
-                        pj.print();
-                    } catch (PrinterException exc) {
-                        System.out.println(exc);
-                    }
+               JFileChooser fileChooser = new JFileChooser("Save as...");
+               
+               
+               fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG File", ".png"));
+               int rVal = fileChooser.showSaveDialog(window);
+               if (rVal == JFileChooser.APPROVE_OPTION) {
+                  
+                      BufferedImage image = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_RGB);
+                      Graphics2D g = image.createGraphics();
+                      System.out.println(panel.getWidth() + " , " + panel.getHeight());
+                      panel.paint(g);
+                     
+                      try {
+                          ImageIO.write(image, "png", new File(fileChooser.getSelectedFile() + ".png"));
+                      } catch (IOException ex) {
+                          Logger.getLogger(WindowSingleton.class.getName()).log(Level.SEVERE, null, ex);
+                      } 
+                 
                 }
+               
             }
         });
         quitItem.addActionListener(new ActionListener() {
@@ -284,7 +305,7 @@ public class WindowSingleton {
         menu.add(newItem);
         menu.add(openItem);
         menu.add(saveItem);
-        menu.add(printItem);
+        menu.add(exportItem);
         menu.add(quitItem);
         window.setJMenuBar(menuBar);
         window.setLocationRelativeTo(null);
@@ -651,10 +672,12 @@ public class WindowSingleton {
 
     private void savePrompt() {
         JFileChooser c = new JFileChooser();
+        c.setFileFilter(new FileNameExtensionFilter("Celestial Soup UML", ".csu"));
+        c.setAcceptAllFileFilterUsed(false);
         int rVal = c.showSaveDialog(window);
         if (rVal == JFileChooser.APPROVE_OPTION) {
             try {
-                SaveToFile(c.getSelectedFile().toString());
+                SaveToFile(c.getSelectedFile().toString() + ".csu");
             } catch (IOException ex) {
                 Logger.getLogger(WindowSingleton.class.getName()).log(Level.SEVERE, null, ex);
             }
