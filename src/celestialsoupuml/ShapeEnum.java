@@ -11,5 +11,6 @@ package celestialsoupuml;
 
 public enum ShapeEnum {
     CLASSBOX,
-    RELATIONSHIPLINE
+    RELATIONSHIPLINE,
+    FREEFORMTEXT
 }

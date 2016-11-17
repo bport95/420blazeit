@@ -5,15 +5,12 @@
  */
 package celestialsoupuml;
 
-import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -27,7 +24,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -68,6 +64,8 @@ public class WindowSingleton {
     private static boolean isPressingMouse;
     private static MouseListener containerListener;
     private static MouseMotionListener containerMotionListener;
+    private static MouseListener textContainerListener;
+    private static MouseMotionListener textContainerMotionListener;
     public static ArrayList<ShapeContainer> shapeContainers;
     private static boolean unsavedChanges;
 
@@ -113,10 +111,10 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.RECTANGLE;
-                menuBar.getComponent(1).setVisible(false);
                 menuBar.getComponent(2).setVisible(false);
+                menuBar.getComponent(3).setVisible(false);
                 window.setTitle("UML - Box");
-                redrawShapes();
+                showEditItems();
             }
         });
 
@@ -124,8 +122,8 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.SELECT;
-                menuBar.getComponent(1).setVisible(false);
                 menuBar.getComponent(2).setVisible(false);
+                menuBar.getComponent(3).setVisible(false);
                 window.setTitle("UML - Select");
                 redrawShapes();
             }
@@ -135,8 +133,8 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.LINE;
-                menuBar.getComponent(1).setVisible(true);
                 menuBar.getComponent(2).setVisible(true);
+                menuBar.getComponent(3).setVisible(true);
                 window.setTitle("UML - Line");
                 redrawShapes();
             }
@@ -145,9 +143,15 @@ public class WindowSingleton {
         textButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (selectedContainer != null && selectedContainer.shapeType == ShapeEnum.CLASSBOX) {
-                    editClassText();
-                }
+                ShapeContainer t = new ShapeContainer();
+                t.drawTextBox(10, 10, 200, 200);
+                t.setClassText("Freeform text");
+                t.addMouseListener(containerListener);
+                t.addMouseMotionListener(containerMotionListener);
+                panel.add(t);
+                shapeContainers.add(t);
+                panel.repaint();
+
             }
         });
 
@@ -176,6 +180,7 @@ public class WindowSingleton {
         window.add(toolbar, BorderLayout.WEST);
 
         JMenu menu = new JMenu("File");
+        JMenu editmenu = new JMenu("Edit");
 
         comboBox.addItem("Association");
         comboBox.addItem("Directed Association");
@@ -221,17 +226,21 @@ public class WindowSingleton {
         });
         JLabel relationshipLabel = new JLabel("Line Relationship:");
         menuBar.add(menu);
+        menuBar.add(editmenu);
         menuBar.add(relationshipLabel);
         menuBar.add(comboBox);
         System.out.println(menuBar.getComponentIndex(comboBox));
-        menuBar.getComponent(1).setVisible(false);
         menuBar.getComponent(2).setVisible(false);
-
+        menuBar.getComponent(3).setVisible(false);
+        
         JMenuItem newItem = new JMenuItem("New");
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem saveItem = new JMenuItem("Save");
         JMenuItem exportItem = new JMenuItem("Export");
         JMenuItem quitItem = new JMenuItem("Quit");
+
+        JMenuItem editTextItem = new JMenuItem("Edit Text");
+        JMenuItem resizeItem = new JMenuItem("Resize");
 
         newItem.addActionListener(new ActionListener() {
             @Override
@@ -273,26 +282,25 @@ public class WindowSingleton {
         exportItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               JFileChooser fileChooser = new JFileChooser("Save as...");
-               
-               
-               fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG File", ".png"));
-               int rVal = fileChooser.showSaveDialog(window);
-               if (rVal == JFileChooser.APPROVE_OPTION) {
-                  
-                      BufferedImage image = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_RGB);
-                      Graphics2D g = image.createGraphics();
-                      System.out.println(panel.getWidth() + " , " + panel.getHeight());
-                      panel.paint(g);
-                     
-                      try {
-                          ImageIO.write(image, "png", new File(fileChooser.getSelectedFile() + ".png"));
-                      } catch (IOException ex) {
-                          Logger.getLogger(WindowSingleton.class.getName()).log(Level.SEVERE, null, ex);
-                      } 
-                 
+                JFileChooser fileChooser = new JFileChooser("Save as...");
+
+                fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG File", ".png"));
+                int rVal = fileChooser.showSaveDialog(window);
+                if (rVal == JFileChooser.APPROVE_OPTION) {
+
+                    BufferedImage image = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_RGB);
+                    Graphics2D g = image.createGraphics();
+                    System.out.println(panel.getWidth() + " , " + panel.getHeight());
+                    panel.paint(g);
+
+                    try {
+                        ImageIO.write(image, "png", new File(fileChooser.getSelectedFile() + ".png"));
+                    } catch (IOException ex) {
+                        Logger.getLogger(WindowSingleton.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
                 }
-               
+
             }
         });
         quitItem.addActionListener(new ActionListener() {
@@ -302,14 +310,36 @@ public class WindowSingleton {
             }
         });
 
+        editTextItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedContainer.shapeType == ShapeEnum.CLASSBOX || selectedContainer.shapeType == ShapeEnum.FREEFORMTEXT) {
+                    editClassText();
+                }
+            }
+        });
+
+        resizeItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedContainer.shapeType == ShapeEnum.CLASSBOX || selectedContainer.shapeType == ShapeEnum.FREEFORMTEXT) {
+                    resizeBox();
+                }
+            }
+        });
+
         menu.add(newItem);
         menu.add(openItem);
         menu.add(saveItem);
         menu.add(exportItem);
         menu.add(quitItem);
+        editmenu.add(editTextItem);
+        editmenu.add(resizeItem);
         window.setJMenuBar(menuBar);
         window.setLocationRelativeTo(null);
         window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        
+        hideEditItems();
 
         panel = new JPanel() {
             Point pointStart = null;
@@ -324,7 +354,7 @@ public class WindowSingleton {
                         if (selectedTool == SelectedTool.SELECT) {
                             if (selectedContainer != null) {
                                 selectedContainer.setIsSelected(false);
-
+                                hideEditItems();
                             }
                             selectedContainer = null;
                             return;
@@ -384,6 +414,7 @@ public class WindowSingleton {
 
                             container.addMouseListener(containerListener);
                             container.addMouseMotionListener(containerMotionListener);
+
                             shapeContainers.add(container);
                             panel.add(container);
 
@@ -444,12 +475,17 @@ public class WindowSingleton {
 
                     for (ShapeContainer s : shapeContainers) {
                         if (s.getSelected() == true) {
-                            comboBox.setSelectedIndex(getRStat(s));
+                            if (s.shapeType == ShapeEnum.CLASSBOX || s.shapeType == ShapeEnum.FREEFORMTEXT) {
+                                showEditItems();
+                            } else {
+                                comboBox.setSelectedIndex(getRStat(s));
+                            }
                         }
                     }
 
                     if (e.getClickCount() == 2) {
-                        if (selectedContainer != null && selectedContainer.shapeType == ShapeEnum.CLASSBOX) {
+                        if (selectedContainer != null && (selectedContainer.shapeType == ShapeEnum.CLASSBOX
+                                || selectedContainer.shapeType == ShapeEnum.FREEFORMTEXT)) {
                             editClassText();
                         }
                     }
@@ -537,17 +573,45 @@ public class WindowSingleton {
     *
      */
     private static void editClassText() {
-        JTextArea textArea = new JTextArea(20, 50);
-        textArea.setText(selectedContainer.getClassText());
-        textArea.setWrapStyleWord(true);
-        JPanel popupPanel = new JPanel(new GridLayout(0, 1));
-        popupPanel.add(textArea);
-        int result = JOptionPane.showConfirmDialog(null, popupPanel, "Text",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
-            selectedContainer.setClassText(textArea.getText());
-            refreshContainer();
+
+        for (ShapeContainer s : shapeContainers) {
+            if (s.getSelected()) {
+                JTextArea textArea = new JTextArea(20, 50);
+                textArea.setText(s.getClassText());
+                textArea.setWrapStyleWord(true);
+                JPanel popupPanel = new JPanel(new GridLayout(0, 1));
+                popupPanel.add(textArea);
+                int result = JOptionPane.showConfirmDialog(null, popupPanel, "Text",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (result == JOptionPane.OK_OPTION) {
+                    s.setClassText(textArea.getText());
+                    refreshContainer();
+                }
+            }
         }
+    }
+
+    private static void resizeBox() {
+        for (ShapeContainer s : shapeContainers) {
+            if (s.getSelected()) {
+
+            }
+        }
+    }
+
+    
+    private void showEditItems() {
+        JMenu edit = (JMenu) menuBar.getComponent(1);
+        edit.getItem(0).setEnabled(true);
+        edit.getItem(1).setEnabled(true);
+        
+    }
+    
+    private void hideEditItems() {
+        JMenu edit = (JMenu) menuBar.getComponent(1);
+        edit.getItem(0).setEnabled(false);
+        edit.getItem(1).setEnabled(false);
+        
     }
 
     /*
@@ -649,6 +713,8 @@ public class WindowSingleton {
                 s.drawLine(s.startX, s.startY, s.endX, s.endY);
             } else if (s.shapeType == ShapeEnum.CLASSBOX) {
                 s.drawBox(s.startX, s.startY, s.width, s.height);
+            } else {
+                s.drawTextBox(s.startX, s.startY, s.width, s.height);
             }
         }
     }
@@ -683,23 +749,20 @@ public class WindowSingleton {
             }
         }
     }
-    
-    private void unsavedChangesPrompt(String action){
+
+    private void unsavedChangesPrompt(String action) {
         JLabel label = new JLabel();
-                    label.setText("You have unsaved changes, would you like to save them first?");
-                    JPanel popupPanel = new JPanel(new GridLayout(0, 1));
-                    popupPanel.add(label);
-                    int result = JOptionPane.showConfirmDialog(null, popupPanel, "Text",
-                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                    if (result == JOptionPane.OK_OPTION) {
-                        savePrompt();
-                    } else {
-                        if(action.equals("quit")){
-                            System.exit(0);
-                        }else{
-                           removeAnnotations(); 
-                        }
-                        
-                    }
+        label.setText("You have unsaved changes, would you like to save them first?");
+        JPanel popupPanel = new JPanel(new GridLayout(0, 1));
+        popupPanel.add(label);
+        int result = JOptionPane.showConfirmDialog(null, popupPanel, "Text",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            savePrompt();
+        } else if (action.equals("quit")) {
+            System.exit(0);
+        } else {
+            removeAnnotations();
+        }
     }
 }
