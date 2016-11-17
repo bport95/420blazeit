@@ -9,7 +9,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Stroke;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
@@ -27,9 +26,14 @@ public class ShapeContainer extends javax.swing.JPanel {
     public int startY;
     public int endX;
     public int endY;
-    private boolean isMoving;
     private JLabel label;
     public String classText;
+
+    public ShapeContainer() {
+        //super();
+
+    }
+
 
     public ShapeContainer(ShapeEnum objectType) {
         //super();
@@ -61,6 +65,31 @@ public class ShapeContainer extends javax.swing.JPanel {
 
     }
 
+        public void drawTextBox(int x, int y, int width, int height) {
+
+        this.removeAll();
+        
+        this.startX = x;
+        this.startY = y;
+        this.setSize(width, height);
+        this.setLocation(x, y);
+        this.width = width;
+        this.height = height;
+        label = new JLabel();
+        label.setText(this.classText);
+        label.setLocation(10, 10);
+        label.setSize(width, height);
+        label.setVerticalAlignment(SwingConstants.TOP);
+        this.add(label);
+        
+        this.shapeType = ShapeEnum.FREEFORMTEXT;
+
+        this.setBackground(Color.white);
+        repaint();
+
+    }
+
+    
     public void drawLine(int sX, int sY, int eX, int eY) {
         System.out.println("sX: " + sX);
         System.out.println("sY: " + sY);
@@ -112,7 +141,7 @@ public class ShapeContainer extends javax.swing.JPanel {
     }
 
     public void moveBox(int newX, int newY) {
-        isMoving = true;
+
         this.setLocation(this.getLocation().x + newX, this.getLocation().y + newY);
     }
 
@@ -139,11 +168,11 @@ public class ShapeContainer extends javax.swing.JPanel {
             g2.setColor(Color.black);
         }
 
-        if (shapeType == ShapeEnum.CLASSBOX) {
+        if (shapeType == ShapeEnum.CLASSBOX || shapeType == ShapeEnum.FREEFORMTEXT) {
 
             g2.drawRect(0, 0, width, height);
 
-        } else {
+        }else {
 
             int startXDraw = this.startX;
             int startYDraw = this.startY;
