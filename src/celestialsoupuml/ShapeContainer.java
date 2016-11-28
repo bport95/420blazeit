@@ -143,6 +143,8 @@ public class ShapeContainer extends javax.swing.JPanel {
     public void moveBox(int newX, int newY) {
 
         this.setLocation(this.getLocation().x + newX, this.getLocation().y + newY);
+        this.startX = this.getLocation().x;
+        this.startY = this.getLocation().y;
     }
 
     public void paintComponent(Graphics g) {

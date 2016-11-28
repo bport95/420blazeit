@@ -508,7 +508,12 @@ public class WindowSingleton {
         containerMotionListener = new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (isPressingMouse == true) {
-                    selectedContainer.moveBox(e.getX() - (selectedContainer.getWidth() / 2), e.getY() - (selectedContainer.getHeight() / 2));
+                    for (ShapeContainer s : shapeContainers) {
+                        if (s.getSelected() == true) {
+                            s.moveBox(e.getX() - (s.getWidth() / 2), e.getY() - (s.getHeight() / 2));
+                        }
+                    }
+                    
                 }
             }
         };
@@ -765,4 +770,16 @@ public class WindowSingleton {
             removeAnnotations();
         }
     }
+    
+    private void resizePrompt() {
+        JLabel label = new JLabel();
+        label.setText("What would you like the new size to be?");
+        JPanel popupPanel = new JPanel(new GridLayout(0, 1));
+        popupPanel.add(label);
+        int result = JOptionPane.showConfirmDialog(null, popupPanel, "Text",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            
+        }
+    } 
 }
