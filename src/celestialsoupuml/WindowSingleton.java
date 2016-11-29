@@ -653,7 +653,7 @@ public class WindowSingleton {
             } else if (newS.shapeType == ShapeEnum.RELATIONSHIPLINE) {
                 newS.drawLine(newS.startX, newS.startY, newS.endX, newS.endY);
             } else {
-                System.out.println("Unknown shape type");
+                newS.drawTextBox(newS.startX, newS.startY, newS.width, newS.height);
             }
 
             newS.addMouseListener(containerListener);
@@ -673,7 +673,9 @@ public class WindowSingleton {
         for (ShapeContainer s : shapeContainers) {
             if (s.shapeType == ShapeEnum.RELATIONSHIPLINE) {
                 savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.width, s.height, s.shapeType, s.relationshipType, null));
-            } else {
+            }else if(s.shapeType == ShapeEnum.FREEFORMTEXT){
+                savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.width, s.height, s.shapeType, null, s.getClassText()));
+            }else {
                 savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.width, s.height, s.shapeType, null, s.getClassText()));
             }
 
