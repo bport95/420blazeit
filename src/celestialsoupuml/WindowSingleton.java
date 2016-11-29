@@ -49,7 +49,6 @@ import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
- *
  * @author ben
  */
 public class WindowSingleton {
@@ -137,6 +136,7 @@ public class WindowSingleton {
                 menuBar.getComponent(3).setVisible(true);
                 window.setTitle("UML - Line");
                 redrawShapes();
+                hideEditItems();
             }
         });
 
@@ -240,7 +240,7 @@ public class WindowSingleton {
         JMenuItem quitItem = new JMenuItem("Quit");
 
         JMenuItem editTextItem = new JMenuItem("Edit Text");
-        JMenuItem resizeItem = new JMenuItem("Resize");
+
 
         newItem.addActionListener(new ActionListener() {
             @Override
@@ -257,8 +257,7 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser c = new JFileChooser();
-                c.setFileFilter(new FileNameExtensionFilter("Celestial Soup UML", ".csu"));
-                c.setAcceptAllFileFilterUsed(false);
+                c.setAcceptAllFileFilterUsed(true);
                 int rVal = c.showOpenDialog(window);
                 if (rVal == JFileChooser.APPROVE_OPTION) {
                     try {
@@ -319,14 +318,6 @@ public class WindowSingleton {
             }
         });
 
-        resizeItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (selectedContainer.shapeType == ShapeEnum.CLASSBOX || selectedContainer.shapeType == ShapeEnum.FREEFORMTEXT) {
-                    resizeBox();
-                }
-            }
-        });
 
         menu.add(newItem);
         menu.add(openItem);
@@ -334,7 +325,6 @@ public class WindowSingleton {
         menu.add(exportItem);
         menu.add(quitItem);
         editmenu.add(editTextItem);
-        editmenu.add(resizeItem);
         window.setJMenuBar(menuBar);
         window.setLocationRelativeTo(null);
         window.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -479,6 +469,7 @@ public class WindowSingleton {
                                 showEditItems();
                             } else {
                                 comboBox.setSelectedIndex(getRStat(s));
+                                hideEditItems();
                             }
                         }
                     }
@@ -608,14 +599,11 @@ public class WindowSingleton {
     private void showEditItems() {
         JMenu edit = (JMenu) menuBar.getComponent(1);
         edit.getItem(0).setEnabled(true);
-        edit.getItem(1).setEnabled(true);
-        
     }
     
     private void hideEditItems() {
         JMenu edit = (JMenu) menuBar.getComponent(1);
         edit.getItem(0).setEnabled(false);
-        edit.getItem(1).setEnabled(false);
         
     }
 
@@ -770,16 +758,4 @@ public class WindowSingleton {
             removeAnnotations();
         }
     }
-    
-    private void resizePrompt() {
-        JLabel label = new JLabel();
-        label.setText("What would you like the new size to be?");
-        JPanel popupPanel = new JPanel(new GridLayout(0, 1));
-        popupPanel.add(label);
-        int result = JOptionPane.showConfirmDialog(null, popupPanel, "Text",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
-            
-        }
-    } 
 }
