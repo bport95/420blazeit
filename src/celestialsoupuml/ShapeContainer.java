@@ -11,6 +11,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import java.awt.geom.Line2D;
+import java.awt.Polygon;
+import java.awt.geom.AffineTransform;
 
 /**
  * @author ben
@@ -28,6 +31,12 @@ public class ShapeContainer extends javax.swing.JPanel {
     public int endY;
     private JLabel label;
     public String classText;
+    
+    AffineTransform tx = new AffineTransform();
+    Polygon arrowHead = new Polygon();  
+    Polygon diamondHead = new Polygon(); 
+    Polygon arrowPoint = new Polygon(); 
+    
 
     public ShapeContainer() {
         //super();
@@ -146,13 +155,87 @@ public class ShapeContainer extends javax.swing.JPanel {
         this.startX = this.getLocation().x;
         this.startY = this.getLocation().y;
     }
+    
+    public void buildArrowHead(){
+        arrowHead.addPoint(0, 5);
+        arrowHead.addPoint(-5, -5);
+        arrowHead.addPoint(5, -5);
+    }
+    
+    public void buildDiamondHead(){
+        diamondHead.addPoint(0, 5);
+        diamondHead.addPoint(-5, -5);
+        diamondHead.addPoint(0, 10);
+        diamondHead.addPoint(5, -5);
+    }
+    
+    public void buildArrowPoint(){
+        arrowPoint.addPoint(0, 5);
+        arrowPoint.addPoint(-5, -5);
+        arrowPoint.addPoint(0, 5);
+        arrowPoint.addPoint(5, -5);
+    }
+     
+    private void drawArrowHead(Graphics2D g2d) {  
+        buildArrowHead();
+        tx.setToIdentity();  
+        double angle = Math.atan2(endY - startY, endX - startX);
+        tx.translate(endX, endY);
+        tx.rotate((angle-Math.PI / 2d)); 
+
+        Graphics2D g = (Graphics2D) g2d.create();
+        g.setTransform(tx);   
+        if(true) { //edit to change for fill as needed
+            g.drawPolygon(arrowHead);
+        }
+        else
+        {
+            g.fill(arrowHead);
+        }
+    }
+    
+    private void drawDiamondHead(Graphics2D g2d) {  
+        buildDiamondHead();
+        tx.setToIdentity();  
+        double angle = Math.atan2(endY - startY, endX - startX);
+        tx.translate(endX, endY);
+        tx.rotate((angle-Math.PI / 2d)); 
+
+        Graphics2D g = (Graphics2D) g2d.create();
+        g.setTransform(tx);  
+        if(true) { //edit to change for fill as needed
+            g.drawPolygon(diamondHead);
+        }
+        else
+        {
+            g.fill(diamondHead);
+        }
+    }
+    
+    private void drawArrowPoint(Graphics2D g2d) {  
+        buildArrowPoint();
+        tx.setToIdentity();  
+        double angle = Math.atan2(endY - startY, endX - startX);
+        tx.translate(endX, endY);
+        tx.rotate((angle-Math.PI / 2d)); 
+
+        Graphics2D g = (Graphics2D) g2d.create();
+        g.setTransform(tx);   
+        g.drawPolygon(arrowPoint);
+    }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
-        if (relationshipType == RelationshipStatusEnum.ASSOCIATION || relationshipType == RelationshipStatusEnum.DIRECTED_ASSOCIATION) {
+        
+        //There is a bug here with detecting ASSOCIATION and DIRECTED_ASSOCIATION
+        //It does not pick up DIRECTED_ASSOCIATION selection for some reason
+        if (relationshipType == RelationshipStatusEnum.ASSOCIATION) {
             g2.setStroke(new BasicStroke(2));
+        }else if (relationshipType == RelationshipStatusEnum.DIRECTED_ASSOCIATION) {
+            g2.setStroke(new BasicStroke(2));
+            drawArrowPoint(g2);
         }else if (relationshipType == RelationshipStatusEnum.GENERALIZATION) {
             float[] dash1 = {10.0f};
             BasicStroke dashed
@@ -162,7 +245,10 @@ public class ShapeContainer extends javax.swing.JPanel {
                             10.0f, dash1, 0.0f);
             g2.setStroke(dashed);
         } else {
-            //logic for arrow line here...  
+            //logic for arrow line here... Use as needed
+            drawArrowPoint(g2);
+            drawDiamondHead(g2);
+            drawArrowHead(g2);
         }
         if (isSelected) {
             g2.setColor(Color.red);
