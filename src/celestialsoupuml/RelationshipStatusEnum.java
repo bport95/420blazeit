@@ -9,8 +9,7 @@ package celestialsoupuml;
  *
  * @author Brandan
  */
- public enum RelationshipStatusEnum {
-        ASSOCIATION,
-        DIRECTED_ASSOCIATION,
-        GENERALIZATION
-    }
+public enum RelationshipStatusEnum {
+    ASSOCIATION,
+    GENERALIZATION
+}
