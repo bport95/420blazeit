@@ -121,8 +121,13 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.SELECT;
-                menuBar.getComponent(2).setVisible(false);
-                menuBar.getComponent(3).setVisible(false);
+                if (selectedContainer.shapeType == ShapeEnum.RELATIONSHIPLINE) {
+                    menuBar.getComponent(2).setVisible(true);
+                    menuBar.getComponent(3).setVisible(true);
+                } else {
+                    menuBar.getComponent(2).setVisible(false);
+                    menuBar.getComponent(3).setVisible(false);
+                }
                 window.setTitle("UML - Select");
                 redrawShapes();
             }
@@ -183,7 +188,6 @@ public class WindowSingleton {
         JMenu editmenu = new JMenu("Edit");
 
         comboBox.addItem("Association");
-        comboBox.addItem("Directed Association");
         comboBox.addItem("Generalization");
         comboBox.addItemListener(new ItemListener() {
             @Override
@@ -197,27 +201,14 @@ public class WindowSingleton {
                                 s.redrawShape();
                             }
                         }
-                        System.out.println("Change to association");
-                    } else if ((selectedContainer.shapeType == ShapeEnum.RELATIONSHIPLINE)
-                            && (comboBox.getSelectedItem().toString() == "Directed Association")) {
-                        System.out.println("Change to Directed Assocation");
-                        for (ShapeContainer s : shapeContainers) {
-                            if (s.getSelected() == true) {
-                                s.relationshipType = RelationshipStatusEnum.DIRECTED_ASSOCIATION;
-                                s.redrawShape();
-                            }
-                        };
                     } else if ((selectedContainer.shapeType == ShapeEnum.RELATIONSHIPLINE)
                             && (comboBox.getSelectedItem().toString() == "Generalization")) {
-                        System.out.println("Change to generalization");
                         for (ShapeContainer s : shapeContainers) {
                             if (s.getSelected() == true) {
                                 s.relationshipType = RelationshipStatusEnum.GENERALIZATION;
                                 s.redrawShape();
                             }
                         };
-                    } else {
-                        System.out.println("Uncaught dropdown");
                     }
 
                 }
@@ -229,10 +220,9 @@ public class WindowSingleton {
         menuBar.add(editmenu);
         menuBar.add(relationshipLabel);
         menuBar.add(comboBox);
-        System.out.println(menuBar.getComponentIndex(comboBox));
         menuBar.getComponent(2).setVisible(false);
         menuBar.getComponent(3).setVisible(false);
-        
+
         JMenuItem newItem = new JMenuItem("New");
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem saveItem = new JMenuItem("Save");
@@ -240,7 +230,6 @@ public class WindowSingleton {
         JMenuItem quitItem = new JMenuItem("Quit");
 
         JMenuItem editTextItem = new JMenuItem("Edit Text");
-
 
         newItem.addActionListener(new ActionListener() {
             @Override
@@ -289,7 +278,6 @@ public class WindowSingleton {
 
                     BufferedImage image = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_RGB);
                     Graphics2D g = image.createGraphics();
-                    System.out.println(panel.getWidth() + " , " + panel.getHeight());
                     panel.paint(g);
 
                     try {
@@ -318,7 +306,6 @@ public class WindowSingleton {
             }
         });
 
-
         menu.add(newItem);
         menu.add(openItem);
         menu.add(saveItem);
@@ -328,7 +315,7 @@ public class WindowSingleton {
         window.setJMenuBar(menuBar);
         window.setLocationRelativeTo(null);
         window.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        
+
         hideEditItems();
 
         panel = new JPanel() {
@@ -467,9 +454,13 @@ public class WindowSingleton {
                         if (s.getSelected() == true) {
                             if (s.shapeType == ShapeEnum.CLASSBOX || s.shapeType == ShapeEnum.FREEFORMTEXT) {
                                 showEditItems();
+                                menuBar.getComponent(2).setVisible(false);
+                                menuBar.getComponent(3).setVisible(false);
                             } else {
                                 comboBox.setSelectedIndex(getRStat(s));
                                 hideEditItems();
+                                menuBar.getComponent(2).setVisible(true);
+                                menuBar.getComponent(3).setVisible(true);
                             }
                         }
                     }
@@ -504,7 +495,7 @@ public class WindowSingleton {
                             s.moveBox(e.getX() - (s.getWidth() / 2), e.getY() - (s.getHeight() / 2));
                         }
                     }
-                    
+
                 }
             }
         };
@@ -512,48 +503,38 @@ public class WindowSingleton {
         window.addComponentListener(new ComponentListener() {
             @Override
             public void componentResized(ComponentEvent e) {
-                System.out.println("Comp Resized");
                 redrawShapes();
             }
 
             @Override
             public void componentMoved(ComponentEvent e) {
-
-                System.out.println("Comp Moved");
             }
 
             @Override
             public void componentShown(ComponentEvent e) {
-                System.out.println("Comp Shown");
             }
 
             @Override
             public void componentHidden(ComponentEvent e) {
-                System.out.println("Comp Hidden");
             }
         });
 
         menuBar.addComponentListener(new ComponentListener() {
             @Override
             public void componentResized(ComponentEvent e) {
-                System.out.println("MB Resized");
                 redrawShapes();
             }
 
             @Override
             public void componentMoved(ComponentEvent e) {
-
-                System.out.println("MB Moved");
             }
 
             @Override
             public void componentShown(ComponentEvent e) {
-                System.out.println("MB Shown");
             }
 
             @Override
             public void componentHidden(ComponentEvent e) {
-                System.out.println("MB Hidden");
             }
         });
 
@@ -563,10 +544,11 @@ public class WindowSingleton {
 
     }
 
-    /*
-    * Displays a text area in a JPanel popup window 
-    * for editing the text of the selected class container
-    *
+    /**
+     * Displays a text area in a JPanel popup window for editing the text of the
+     * selected class container
+     *
+     *
      */
     private static void editClassText() {
 
@@ -587,24 +569,15 @@ public class WindowSingleton {
         }
     }
 
-    private static void resizeBox() {
-        for (ShapeContainer s : shapeContainers) {
-            if (s.getSelected()) {
-
-            }
-        }
-    }
-
-    
     private void showEditItems() {
         JMenu edit = (JMenu) menuBar.getComponent(1);
         edit.getItem(0).setEnabled(true);
     }
-    
+
     private void hideEditItems() {
         JMenu edit = (JMenu) menuBar.getComponent(1);
         edit.getItem(0).setEnabled(false);
-        
+
     }
 
     /*
@@ -619,8 +592,14 @@ public class WindowSingleton {
         selectedContainer.setIsSelected(true);
     }
 
+    /**
+     *
+     * @param filePath file path of the saved file
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private void LoadFromFile(String filePath) throws FileNotFoundException, IOException, ClassNotFoundException {
-        System.out.println(filePath);
 
         shapeContainers.clear();
         panel.removeAll();
@@ -631,29 +610,27 @@ public class WindowSingleton {
         ArrayList<SaveObject> savedObjects = (ArrayList<SaveObject>) objectInput.readObject();
         objectInput.close();
         fileInput.close();
-        System.out.println(savedObjects.size());
         for (SaveObject s : savedObjects) {
             ShapeContainer newS = new ShapeContainer(s.type);
             newS.startX = s.startX;
             newS.startY = s.startY;
             newS.endX = s.endX;
             newS.endY = s.endY;
+            newS.locationX = s.locationX;
+            newS.locationY = s.locationY;
             newS.width = s.width;
             newS.height = s.height;
             newS.relationshipType = s.relStat;
             newS.shapeType = s.type;
             newS.classText = s.classText;
-            System.out.println(newS.startX + " " + newS.startY + " " + newS.endX + " " + newS.endY + " "
-                    + newS.width + " " + newS.height + newS.shapeType + newS.relationshipType + "\n");
             shapeContainers.add(newS);
 
             if (newS.shapeType == ShapeEnum.CLASSBOX) {
-                System.out.println("Is Class Box");
-                newS.drawBox(newS.startX, newS.startY, newS.width, newS.height);
+                newS.drawBox(newS.locationX, newS.locationY, newS.width, newS.height);
             } else if (newS.shapeType == ShapeEnum.RELATIONSHIPLINE) {
                 newS.drawLine(newS.startX, newS.startY, newS.endX, newS.endY);
             } else {
-                newS.drawTextBox(newS.startX, newS.startY, newS.width, newS.height);
+                newS.drawTextBox(newS.locationX, newS.locationY, newS.width, newS.height);
             }
 
             newS.addMouseListener(containerListener);
@@ -667,16 +644,21 @@ public class WindowSingleton {
 
     }
 
+    /**
+     *
+     * @param filePath file path of where to save the file
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     private void SaveToFile(String filePath) throws FileNotFoundException, IOException {
-        System.out.println(filePath);
         ArrayList<SaveObject> savedObjects = new ArrayList<>();
         for (ShapeContainer s : shapeContainers) {
             if (s.shapeType == ShapeEnum.RELATIONSHIPLINE) {
-                savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.width, s.height, s.shapeType, s.relationshipType, null));
-            }else if(s.shapeType == ShapeEnum.FREEFORMTEXT){
-                savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.width, s.height, s.shapeType, null, s.getClassText()));
-            }else {
-                savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.width, s.height, s.shapeType, null, s.getClassText()));
+                savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.locationX, s.locationY, s.width, s.height, s.shapeType, s.relationshipType, null));
+            } else if (s.shapeType == ShapeEnum.FREEFORMTEXT) {
+                savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.locationX, s.locationY, s.width, s.height, s.shapeType, null, s.getClassText()));
+            } else {
+                savedObjects.add(new SaveObject(s.startX, s.startY, s.endX, s.endY, s.locationX, s.locationY, s.width, s.height, s.shapeType, null, s.getClassText()));
             }
 
         }
@@ -703,22 +685,24 @@ public class WindowSingleton {
     private static void redrawShapes() {
         System.out.println("Redraw Shapes");
         for (ShapeContainer s : shapeContainers) {
-            System.out.println("S Start X:" + s.startX);
             if (s.shapeType == ShapeEnum.RELATIONSHIPLINE) {
                 s.drawLine(s.startX, s.startY, s.endX, s.endY);
             } else if (s.shapeType == ShapeEnum.CLASSBOX) {
-                s.drawBox(s.startX, s.startY, s.width, s.height);
+                s.drawBox(s.locationX, s.locationY, s.width, s.height);
             } else {
-                s.drawTextBox(s.startX, s.startY, s.width, s.height);
+                s.drawTextBox(s.locationX, s.locationY, s.width, s.height);
             }
         }
     }
 
+    /**
+     *
+     * @param s shape container
+     * @return
+     */
     private static int getRStat(ShapeContainer s) {
-        if (s.relationshipType == RelationshipStatusEnum.DIRECTED_ASSOCIATION) {
+        if (s.relationshipType == RelationshipStatusEnum.GENERALIZATION) {
             return 1;
-        } else if (s.relationshipType == RelationshipStatusEnum.GENERALIZATION) {
-            return 2;
         }
 
         return 0;
@@ -745,6 +729,9 @@ public class WindowSingleton {
         }
     }
 
+    /**
+     * Prompts when unsaved changes are about to be trashed
+     */
     private void unsavedChangesPrompt(String action) {
         JLabel label = new JLabel();
         label.setText("You have unsaved changes, would you like to save them first?");

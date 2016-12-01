@@ -8,7 +8,6 @@ package celestialsoupuml;
 /**
  * @author ben
  */
-
 public enum ShapeEnum {
     CLASSBOX,
     RELATIONSHIPLINE,
