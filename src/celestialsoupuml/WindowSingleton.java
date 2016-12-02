@@ -56,9 +56,9 @@ public class WindowSingleton {
     private static JFrame window;
     JMenuBar menuBar = new JMenuBar();
     JComboBox comboBox = new JComboBox();
-    private static SelectedTool selectedTool;
+    public SelectedTool selectedTool;
     private static JPanel panel = new JPanel();
-    private static JPanel sideMenu = new JPanel();
+    public static JPanel sideMenu = new JPanel();
     private static ShapeContainer selectedContainer;
     private static boolean isPressingMouse;
     private static MouseListener containerListener;
@@ -67,8 +67,13 @@ public class WindowSingleton {
     private static MouseMotionListener textContainerMotionListener;
     public static ArrayList<ShapeContainer> shapeContainers;
     private static boolean unsavedChanges;
+    public JButton lineButton;
+    public JButton boxButton;
+    public JButton selectButton;
+    public JButton textButton;
+    public JButton deleteButton;
 
-    enum SelectedTool {
+    public enum SelectedTool {
         LINE,
         RECTANGLE,
         SELECT
@@ -91,29 +96,29 @@ public class WindowSingleton {
         toolbar.setBackground(Color.gray);
         toolbar.setFloatable(false);
 
-        JButton selectButton = new JButton();
+        selectButton = new JButton();
         selectButton.setText("Select");
 
-        JButton lineButton = new JButton();
+        lineButton = new JButton();
         lineButton.setText("Line");
 
-        JButton boxButton = new JButton();
+        boxButton = new JButton();
         boxButton.setText("Box");
 
-        JButton textButton = new JButton();
+        textButton = new JButton();
         textButton.setText("Text");
 
-        JButton deleteButton = new JButton();
+        deleteButton = new JButton();
         deleteButton.setText("Delete");
 
         boxButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.RECTANGLE;
-                menuBar.getComponent(2).setVisible(false);
-                menuBar.getComponent(3).setVisible(false);
+                hideLineMenu();
                 window.setTitle("UML - Box");
                 showEditItems();
+                resetSidebarButtons(boxButton);
             }
         });
 
@@ -121,15 +126,17 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.SELECT;
-                if (selectedContainer.shapeType == ShapeEnum.RELATIONSHIPLINE) {
-                    menuBar.getComponent(2).setVisible(true);
-                    menuBar.getComponent(3).setVisible(true);
-                } else {
-                    menuBar.getComponent(2).setVisible(false);
-                    menuBar.getComponent(3).setVisible(false);
+                if (selectedContainer != null) {
+                    if (selectedContainer.shapeType == ShapeEnum.RELATIONSHIPLINE) {
+                        showLineMenu();
+                    } else {
+                        hideLineMenu();
+                    }
                 }
+
                 window.setTitle("UML - Select");
                 redrawShapes();
+                resetSidebarButtons(selectButton);
             }
         });
 
@@ -137,25 +144,32 @@ public class WindowSingleton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedTool = SelectedTool.LINE;
-                menuBar.getComponent(2).setVisible(true);
-                menuBar.getComponent(3).setVisible(true);
+                showLineMenu();
                 window.setTitle("UML - Line");
                 redrawShapes();
                 hideEditItems();
+                resetSidebarButtons(lineButton);
             }
         });
 
         textButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                int sx = 0;
+                int sy = 0;
+
+                int coord = checkTextBoxLocation(sx,sy);
+                hideLineMenu();
                 ShapeContainer t = new ShapeContainer();
-                t.drawTextBox(10, 10, 200, 200);
+                t.drawTextBox(coord,coord, 200, 200);
                 t.setClassText("Freeform text");
                 t.addMouseListener(containerListener);
                 t.addMouseMotionListener(containerMotionListener);
                 panel.add(t);
                 shapeContainers.add(t);
                 panel.repaint();
+                resetSidebarButtons(textButton);
 
             }
         });
@@ -168,6 +182,8 @@ public class WindowSingleton {
                     panel.remove(selectedContainer);
                     panel.repaint();
                     selectedContainer = null;
+                    hideLineMenu();
+                    resetSidebarButtons(deleteButton);
                 }
             }
         });
@@ -331,8 +347,12 @@ public class WindowSingleton {
                         if (selectedTool == SelectedTool.SELECT) {
                             if (selectedContainer != null) {
                                 selectedContainer.setIsSelected(false);
-                                hideEditItems();
+
                             }
+
+                            hideEditItems();
+                            hideLineMenu();
+
                             selectedContainer = null;
                             return;
                         }
@@ -349,7 +369,7 @@ public class WindowSingleton {
                             }
 
                             ShapeContainer container = new ShapeContainer(ShapeEnum.RELATIONSHIPLINE);
-                            container.drawLine(pointStart.x, pointStart.y, pointEnd.x, pointEnd.y);
+                            container.drawLine(pointStart.x, pointStart.y, pointEnd.x, pointEnd.y, false);
                             if (comboBox.getSelectedItem().toString() == "Generalization") {
                                 container.setRelationshipType(RelationshipStatusEnum.GENERALIZATION);
                             }
@@ -454,13 +474,11 @@ public class WindowSingleton {
                         if (s.getSelected() == true) {
                             if (s.shapeType == ShapeEnum.CLASSBOX || s.shapeType == ShapeEnum.FREEFORMTEXT) {
                                 showEditItems();
-                                menuBar.getComponent(2).setVisible(false);
-                                menuBar.getComponent(3).setVisible(false);
+                                hideLineMenu();
                             } else {
                                 comboBox.setSelectedIndex(getRStat(s));
                                 hideEditItems();
-                                menuBar.getComponent(2).setVisible(true);
-                                menuBar.getComponent(3).setVisible(true);
+                                showLineMenu();
                             }
                         }
                     }
@@ -628,7 +646,7 @@ public class WindowSingleton {
             if (newS.shapeType == ShapeEnum.CLASSBOX) {
                 newS.drawBox(newS.locationX, newS.locationY, newS.width, newS.height);
             } else if (newS.shapeType == ShapeEnum.RELATIONSHIPLINE) {
-                newS.drawLine(newS.startX, newS.startY, newS.endX, newS.endY);
+                newS.drawLine(newS.startX, newS.startY, newS.endX, newS.endY, false);
             } else {
                 newS.drawTextBox(newS.locationX, newS.locationY, newS.width, newS.height);
             }
@@ -683,10 +701,10 @@ public class WindowSingleton {
     }
 
     private static void redrawShapes() {
-        System.out.println("Redraw Shapes");
         for (ShapeContainer s : shapeContainers) {
             if (s.shapeType == ShapeEnum.RELATIONSHIPLINE) {
-                s.drawLine(s.startX, s.startY, s.endX, s.endY);
+                s.drawLine(s.startX, s.startY, s.endX, s.endY, true);
+                s.setLocation(s.locationX, s.locationY);
             } else if (s.shapeType == ShapeEnum.CLASSBOX) {
                 s.drawBox(s.locationX, s.locationY, s.width, s.height);
             } else {
@@ -746,5 +764,42 @@ public class WindowSingleton {
         } else {
             removeAnnotations();
         }
+    }
+
+    public void hideLineMenu() {
+        menuBar.getComponent(2).setVisible(false);
+        menuBar.getComponent(3).setVisible(false);
+    }
+
+    public void showLineMenu() {
+        menuBar.getComponent(2).setVisible(true);
+        menuBar.getComponent(3).setVisible(true);
+    }
+
+    public void resetSidebarButtons(JButton b) {
+        boxButton.setEnabled(true);
+        selectButton.setEnabled(true);
+        lineButton.setEnabled(true);
+        textButton.setEnabled(true);
+        deleteButton.setEnabled(true);
+
+        if (b != deleteButton & b != textButton) {
+            b.setEnabled(false);
+        }
+    }
+    
+    public int checkTextBoxLocation(int x, int y){
+        for (ShapeContainer s : shapeContainers) {
+            if (s.locationX == x && s.locationY ==y) {
+                if(x<window.getSize().width-200 && y<window.getSize().height-200){
+                    x += 50;
+                    y += 50;
+                   checkTextBoxLocation(x,y); 
+                }else{
+                    return x;
+                } 
+            }
+        }
+        return x;
     }
 }

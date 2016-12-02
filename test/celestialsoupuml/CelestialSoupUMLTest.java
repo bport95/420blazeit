@@ -58,7 +58,7 @@ public class CelestialSoupUMLTest {
         int height = (int) (screenSize.getHeight() / 2);
         Robot r = new Robot();
         ShapeContainer sc = new ShapeContainer(ShapeEnum.RELATIONSHIPLINE);
-        sc.drawLine(width, height, width + 300, height + 300);
+        sc.drawLine(width, height, width + 300, height + 300,false);
         r.mouseMove(87, 127);
         r.mousePress(InputEvent.BUTTON1_MASK);
         r.mousePress(InputEvent.BUTTON1_MASK);

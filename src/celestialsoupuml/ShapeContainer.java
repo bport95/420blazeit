@@ -93,14 +93,15 @@ public class ShapeContainer extends javax.swing.JPanel {
         this.height = height;
         label = new JLabel();
         label.setText(this.classText);
-        label.setLocation(10, 10);
+        label.setLocation(100, 100);
         label.setSize(width, height);
         label.setVerticalAlignment(SwingConstants.TOP);
         this.add(label);
 
         this.shapeType = ShapeEnum.FREEFORMTEXT;
 
-        this.setBackground(Color.white);
+        //this.setBackground(Color.white);
+        this.setOpaque(false);
         repaint();
 
     }
@@ -112,14 +113,15 @@ public class ShapeContainer extends javax.swing.JPanel {
      * @param eX the ending x position of the line
      * @param eY the ending y position of the line
      */
-    public void drawLine(int sX, int sY, int eX, int eY) {
+    public void drawLine(int sX, int sY, int eX, int eY, boolean redraw) {
 
         this.startX = sX;
         this.startY = sY;
 
-        this.locationX = sX;
-        this.locationY = sY;
-
+        if(redraw == false){
+            this.locationX = sX;
+            this.locationY = sY;
+        }
         this.endX = eX;
         this.endY = eY;
         this.width = Math.abs(endX - startX);
@@ -157,7 +159,6 @@ public class ShapeContainer extends javax.swing.JPanel {
 
         this.setOpaque(false);
         invalidate();
-
     }
 
     /**
@@ -191,15 +192,17 @@ public class ShapeContainer extends javax.swing.JPanel {
 
         if (isSelected) {
             g2.setColor(Color.red);
+
         } else {
+
             g2.setColor(Color.black);
         }
 
-        if (shapeType == ShapeEnum.CLASSBOX || shapeType == ShapeEnum.FREEFORMTEXT) {
+        if (shapeType == ShapeEnum.CLASSBOX) {
 
             g2.drawRect(0, 0, width, height);
 
-        } else {
+        }else if(shapeType == ShapeEnum.RELATIONSHIPLINE) {
             int startXDraw = this.startX;
             int startYDraw = this.startY;
             int endXDraw = this.endX;
